@@ -7,7 +7,7 @@ sleep 5
 
 # Run migrations
 echo "🚀 Deploying Prisma migrations..."
-npx prisma migrate deploy
+RUN npx prisma db push
 
 # Start your app
 echo "🔧 Starting the server..."
