@@ -20,4 +20,5 @@ RUN npx prisma generate
 
 EXPOSE 3000
 
-CMD ["npm", "run", "dev"]
+COPY start.sh ./start.sh
+CMD ["./start.sh"]
