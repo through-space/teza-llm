@@ -6,9 +6,9 @@ echo "⏳ Waiting for PostgreSQL to be ready..."
 sleep 5
 
 # Run migrations
-RUN npx prisma generate
+npx prisma generate
 echo "🚀 Deploying Prisma migrations..."
-RUN npx prisma db push
+npx prisma db push
 
 # Start your app
 echo "🔧 Starting the server..."
