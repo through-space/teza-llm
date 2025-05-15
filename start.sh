@@ -13,5 +13,5 @@ RUN npx prisma db push
 echo "🔧 Starting the server..."
 npm run build
 
-echo "🚀 Starting the server..."
+echo "🚀 Starting the server.."
 npm run start
