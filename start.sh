@@ -11,4 +11,7 @@ npx prisma migrate deploy
 
 # Start your app
 echo "🔧 Starting the server..."
+npm run build
+
+echo "🚀 Starting the server..."
 npm run start
