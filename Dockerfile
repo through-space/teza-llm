@@ -17,7 +17,6 @@ COPY . .
 
 # Generate Prisma client (after schema + deps are in place)
 RUN npx prisma generate
-RUN npx prisma migrate deploy
 
 EXPOSE 3000
 
