@@ -8,6 +8,8 @@ export default function Home() {
   const [band, setBand] = useState("");
   const [year, setYear] = useState("");
 
+  const [response, setResponse] = useState("");
+
   const [people, setPeople] = useState<string[]>([]);
 
   useEffect(() => {
@@ -29,11 +31,15 @@ export default function Home() {
     // setName("");
     // const updated = await fetch("/api/submit").then((res) => res.json());
     // setPeople(updated);
-    fetch("/api/openai", {
+    await fetch("/api/openai", {
       method: "POST",
       body: JSON.stringify({ name, band, year }),
       headers: { "Content-Type": "application/json" },
-    });
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setResponse(data.response);
+      });
   };
 
   const startYear = 1960;
@@ -78,6 +84,8 @@ export default function Home() {
           <li key={i}>{p}</li>
         ))}
       </ul>
+
+      <div>{response}</div>
     </main>
   );
 }

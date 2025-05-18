@@ -3,18 +3,37 @@ import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
 const prisma = new PrismaClient();
+const openai = new OpenAI();
 
-const testOpenAI = async () => {
-  const client = new OpenAI();
+const getOpenAIBandText = async (name: string, band: string, year: number) => {
+  try {
+    const prompt = `
+      A user named "${name}" selected a band and a year.
 
-  const response = await client.responses.create({
-    model: "gpt-4.1",
-    input: "Write a one-sentence bedtime story about a unicorn.",
-  });
+      Based on this input: "${band}", and the year "${year}", 
+      write exactly two engaging and informative paragraphs describing significant 
+      events or milestones for the band in that year.
 
-  console.log(response.output_text);
+      Do NOT mention the user's name or input directly — just generate the historical content.
+    `;
 
-  return NextResponse.json({});
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4", // or "gpt-3.5-turbo"
+      messages: [
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+    });
+
+    return completion.choices[0].message.content;
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error.message || "Something went wrong." },
+      { status: 500 },
+    );
+  }
 };
 
 export async function GET() {
@@ -24,7 +43,8 @@ export async function GET() {
 
 export async function POST(req: Request) {
   const { name, band, year } = await req.json();
-  // await prisma.person.create({ data: { name } });
-  console.log(name, band, year);
-  return NextResponse.json({ success: true });
+  console.log(`${name}: ${band}, year: ${year}`);
+  const response = await getOpenAIBandText(name, band, parseInt(year));
+
+  return NextResponse.json({ success: true, response });
 }
