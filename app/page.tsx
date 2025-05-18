@@ -8,36 +8,46 @@ export default function Home() {
   const [band, setBand] = useState("");
   const [year, setYear] = useState("");
 
-  const [response, setResponse] = useState("");
+  const [isTextLoading, setIsTextLoading] = useState(false);
+  const [isImageLoading, setIsImageLoading] = useState(false);
+
+  const [textResponse, setTextResponse] = useState("");
+  const [imageResponse, setImageResponse] = useState("");
 
   const [people, setPeople] = useState<string[]>([]);
 
-  // useEffect(() => {
-  //   fetch("/api/submit")
-  //     .then((res) => {
-  //       return res.json();
-  //     })
-  //     .then((data) => setPeople(data));
-  // }, []);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // await fetch("/api/submit", {
-    //   method: "POST",
-    //   body: JSON.stringify({ name }),
-    //   headers: { "Content-Type": "application/json" },
-    // });
-    // setName("");
-    // const updated = await fetch("/api/submit").then((res) => res.json());
-    // setPeople(updated);
-    await fetch("/api/openai", {
+
+    const formData = JSON.stringify({ name, band, year });
+    setIsTextLoading(true);
+    setIsImageLoading(true);
+
+    await fetch("/api/openai/text", {
       method: "POST",
-      body: JSON.stringify({ name, band, year }),
+      body: formData,
       headers: { "Content-Type": "application/json" },
     })
       .then((res) => res.json())
       .then((data) => {
-        setResponse(data.response);
+        setTextResponse(data.response);
+        setIsTextLoading(false);
+      })
+      .catch((err) => {
+        setIsTextLoading(false);
+        setTextResponse(err.response);
+      });
+
+    await fetch("/api/openai/image", {
+      method: "POST",
+      headers: { "Content-Type": "image/png" },
+      body: formData,
+    })
+      .then((data) => data.blob())
+      .then((blob) => {
+        const imageUrl = URL.createObjectURL(blob);
+        setImageResponse(imageUrl);
+        setIsImageLoading(false);
       });
   };
 
@@ -53,9 +63,11 @@ export default function Home() {
     </option>
   ));
 
+  const responseImage = imageResponse ? <img src={imageResponse} /> : null;
+
   return (
     <main style={{ padding: 20 }}>
-      <h1>Hello2</h1>
+      <h1>Get Band</h1>
       <form onSubmit={handleSubmit}>
         <FormFieldsWrapper>
           <input
@@ -84,7 +96,8 @@ export default function Home() {
         ))}
       </ul>
 
-      <div>{response}</div>
+      <div>{isTextLoading ? "Loading..." : textResponse}</div>
+      <div>{isImageLoading ? "Loading..." : responseImage}</div>
     </main>
   );
 }
