@@ -55,6 +55,7 @@ ___
 ### ToDo:
 - [x] MVP
 - [ ] Form Validation
+- [ ] Add Loading State
 - [ ] Save Form Data
 - [ ] Show Last Form Data
 - [ ] Generate Image

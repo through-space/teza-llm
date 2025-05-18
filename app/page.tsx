@@ -12,14 +12,13 @@ export default function Home() {
 
   const [people, setPeople] = useState<string[]>([]);
 
-  useEffect(() => {
-    fetch("/api/submit")
-      .then((res) => {
-        console.log(res);
-        return res.json();
-      })
-      .then((data) => setPeople(data));
-  }, []);
+  // useEffect(() => {
+  //   fetch("/api/submit")
+  //     .then((res) => {
+  //       return res.json();
+  //     })
+  //     .then((data) => setPeople(data));
+  // }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
