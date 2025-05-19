@@ -1,11 +1,7 @@
 import { NextResponse } from "next/server";
 import { getOpenAIBandText } from "@app/api/openai/text/textConsts";
 import { PrismaClient } from "@prisma/client";
-import {
-  getTextStats,
-  isYearEven,
-  isYearOdd,
-} from "@/helpers/textStats/textStatsConsts";
+import { getTextStats, isYearOdd } from "@/helpers/textStats/textStatsConsts";
 
 export async function GET() {
   return NextResponse.json({});
