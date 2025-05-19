@@ -50,7 +50,7 @@ ___
   npm run test
 ```
 
-- Build and Run
+- Build and Run 
 ```shell
   docker compose build 
   docker compose up
