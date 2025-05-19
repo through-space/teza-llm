@@ -1,9 +1,20 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
-
-const openai = new OpenAI();
+import * as process from "node:process";
 
 const getOpenAIBandImage = async (band: string, year: number) => {
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error("Missing OPENAI_API_KEY");
+  }
+
+  let openai: OpenAI;
+
+  try {
+    openai = new OpenAI();
+  } catch (e) {
+    throw new Error("Missing OPENAI_API_KEY");
+  }
+
   const prompt = `
     A realistic or artistic scene depicting the music band ${band} during the year ${year}  . 
     The image should reflect the cultural and visual style of that era, including clothing, stage design, instruments, and atmosphere. 
@@ -28,7 +39,6 @@ const getOpenAIBandImage = async (band: string, year: number) => {
       return imageData;
     })
     .catch((error) => {
-      console.log(error);
       throw new Error(error.error.message);
     });
 };
@@ -39,6 +49,14 @@ export async function GET() {
 
 export async function POST(req: Request) {
   const { band, year } = await req.json();
+
+  if (!band || !year) {
+    return NextResponse.json(
+      { success: false, error: "Invalid request" },
+      { status: 400 },
+    );
+  }
+
   return getOpenAIBandImage(band, parseInt(year))
     .then((imageData) => {
       const buffer = Buffer.from(imageData, "base64");
@@ -52,6 +70,9 @@ export async function POST(req: Request) {
       });
     })
     .catch((error: Error) => {
-      return NextResponse.json({ success: false, error });
+      return NextResponse.json(
+        { success: false, error: "Server Error" },
+        { status: 500 },
+      );
     });
 }

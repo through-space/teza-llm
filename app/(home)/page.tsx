@@ -1,59 +1,74 @@
 "use client";
 import * as React from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FormFieldsWrapper } from "@components/FormFieldsWrapper/FormFieldsWrapper";
+import {
+  defaultYear,
+  endYear,
+  fetchText,
+  startYear,
+} from "@app/(home)/homeConsts";
+import { ITextStats } from "@app/api/openai/text/textInterfaces";
 
 export default function Home() {
   const [name, setName] = useState("");
   const [band, setBand] = useState("");
-  const [year, setYear] = useState("");
+  const [year, setYear] = useState(defaultYear);
 
   const [isTextLoading, setIsTextLoading] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(false);
 
   const [textResponse, setTextResponse] = useState("");
   const [imageResponse, setImageResponse] = useState("");
+  const [error, setError] = useState("");
 
   const [people, setPeople] = useState<string[]>([]);
 
+  const [responseStats, setResponseStats] = useState<ITextStats>({});
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!name || !band || !year) {
+      setError("Please fill all fields");
+      return;
+    }
 
     const formData = JSON.stringify({ name, band, year });
     setIsTextLoading(true);
     setIsImageLoading(true);
 
-    await fetch("/api/openai/text", {
-      method: "POST",
-      body: formData,
-      headers: { "Content-Type": "application/json" },
-    })
-      .then((res) => res.json())
+    fetchText(formData)
       .then((data) => {
-        setTextResponse(data.response);
-        setIsTextLoading(false);
+        if (data.success) {
+          setTextResponse(data?.text ?? "");
+          setResponseStats(data?.stats ?? {});
+
+          setError("");
+        } else {
+          setError(data?.error ?? "");
+        }
       })
       .catch((err) => {
+        setError(err.response);
+      })
+      .finally(() => {
         setIsTextLoading(false);
-        setTextResponse(err.response);
       });
 
-    await fetch("/api/openai/image", {
-      method: "POST",
-      headers: { "Content-Type": "image/png" },
-      body: formData,
-    })
-      .then((data) => data.blob())
-      .then((blob) => {
-        const imageUrl = URL.createObjectURL(blob);
-        setImageResponse(imageUrl);
-        setIsImageLoading(false);
-      });
+    // fetchImage(formData)
+    //   .then((imageUrl) => {
+    //     setImageResponse(imageUrl);
+    //     setIsImageLoading(false);
+    //   })
+    //   .catch((error) => {
+    //     setError(error.message);
+    //   })
+    //   .finally(() => {
+    //     setIsTextLoading(false);
+    //   });
   };
 
-  const startYear = 1960;
-  const endYear = 2025;
-  const defaultYear = endYear;
   const yearOptions = Array.from(
     { length: endYear - startYear + 1 },
     (_, i) => startYear + i,
@@ -66,8 +81,9 @@ export default function Home() {
   const responseImage = imageResponse ? <img src={imageResponse} /> : null;
 
   return (
-    <main style={{ padding: 20 }}>
+    <main style={{ padding: 20 }} className={"flex flex-col justify-center"}>
       <h1>Get Band</h1>
+      <div>{error}</div>
       <form onSubmit={handleSubmit}>
         <FormFieldsWrapper>
           <input
@@ -81,7 +97,7 @@ export default function Home() {
             value={band}
           ></textarea>
           <select
-            onChange={(e) => setYear(e.target.value)}
+            onChange={(e) => setYear(parseInt(e.target.value))}
             defaultValue={defaultYear}
           >
             {...yearOptions}
@@ -98,6 +114,18 @@ export default function Home() {
 
       <div>{isTextLoading ? "Loading..." : textResponse}</div>
       <div>{isImageLoading ? "Loading..." : responseImage}</div>
+      {!isTextLoading && Object.keys(responseStats).length > 0 && (
+        <ul className={"flex flex-col justify-center"}>
+          <li>
+            Words That Start with a Capital Letter:{" "}
+            {responseStats.capitalLetterWords ?? 0}
+          </li>
+          <li>
+            Words Followed by Numbers: {responseStats.wordsBeforeNumbers ?? 0}
+          </li>
+          <li>The Year is {responseStats.isYearOdd ? "Odd" : "Even"}</li>
+        </ul>
+      )}
     </main>
   );
 }

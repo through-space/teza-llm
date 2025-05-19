@@ -54,10 +54,11 @@ ___
 
 ### ToDo:
 - [x] MVP
-- [ ] Form Validation
+- [x] Form Validation
 - [x] Add Loading State
 - [ ] Save Form Data
 - [ ] Show Last Form Data
 - [x] Generate Image
-- [ ] Show error if no LLM Key provided
+- [x] Show error if no LLM Key provided
 - [ ] Tests
+- [x] Show Response Stats
