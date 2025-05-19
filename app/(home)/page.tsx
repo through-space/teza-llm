@@ -1,20 +1,14 @@
 "use client";
 import * as React from "react";
 import { useState } from "react";
-import { FormFieldsWrapper } from "@components/FormFieldsWrapper/FormFieldsWrapper";
-import {
-  defaultYear,
-  endYear,
-  fetchText,
-  startYear,
-} from "@app/(home)/homeConsts";
-import { ITextStats } from "@app/api/openai/text/textInterfaces";
+import { updateImage, updateText } from "@app/(home)/homeConsts";
+import { ITextStats } from "@/types/common";
+import { ResponseStats } from "@components/ResponseStats/ResponseStats";
+import { BandForm } from "@components/BandForm/BandForm";
+import { IFormData } from "@/types/requestTypes";
+import { LastRequest } from "@/components/LastRequest/LastRequest";
 
 export default function Home() {
-  const [name, setName] = useState("");
-  const [band, setBand] = useState("");
-  const [year, setYear] = useState(defaultYear);
-
   const [isTextLoading, setIsTextLoading] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(false);
 
@@ -26,106 +20,55 @@ export default function Home() {
 
   const [responseStats, setResponseStats] = useState<ITextStats>({});
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!name || !band || !year) {
-      setError("Please fill all fields");
-      return;
-    }
-
-    const formData = JSON.stringify({ name, band, year });
+  const handleSubmit = async (formData: IFormData) => {
     setIsTextLoading(true);
     setIsImageLoading(true);
 
-    fetchText(formData)
-      .then((data) => {
-        if (data.success) {
-          setTextResponse(data?.text ?? "");
-          setResponseStats(data?.stats ?? {});
+    updateText({
+      formData,
+      setIsLoading: setIsTextLoading,
+      setError,
+      setData: (data) => {
+        setTextResponse(data?.text ?? "");
+        setResponseStats(data?.stats ?? {});
+      },
+    });
 
-          setError("");
-        } else {
-          setError(data?.error ?? "");
-        }
-      })
-      .catch((err) => {
-        setError(err.response);
-      })
-      .finally(() => {
-        setIsTextLoading(false);
-      });
-
-    // fetchImage(formData)
-    //   .then((imageUrl) => {
-    //     setImageResponse(imageUrl);
-    //     setIsImageLoading(false);
-    //   })
-    //   .catch((error) => {
-    //     setError(error.message);
-    //   })
-    //   .finally(() => {
-    //     setIsTextLoading(false);
-    //   });
+    updateImage({
+      formData,
+      setIsLoading: setIsImageLoading,
+      setError,
+      setData: setImageResponse,
+    });
   };
 
-  const yearOptions = Array.from(
-    { length: endYear - startYear + 1 },
-    (_, i) => startYear + i,
-  ).map((year) => (
-    <option value={year} key={year}>
-      {year}
-    </option>
-  ));
-
-  const responseImage = imageResponse ? <img src={imageResponse} /> : null;
+  const imageComponent = imageResponse ? <img src={imageResponse} /> : null;
 
   return (
-    <main style={{ padding: 20 }} className={"flex flex-col justify-center"}>
+    <main
+      style={{ padding: 20 }}
+      className={"flex flex-col justify-center w-2/3 gap-3"}
+    >
       <h1>Get Band</h1>
       <div>{error}</div>
-      <form onSubmit={handleSubmit}>
-        <FormFieldsWrapper>
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Your name"
-          />
-          <textarea
-            placeholder="Your favorite music band + a few words explaining why you chose them"
-            onChange={(e) => setBand(e.target.value)}
-            value={band}
-          ></textarea>
-          <select
-            onChange={(e) => setYear(parseInt(e.target.value))}
-            defaultValue={defaultYear}
-          >
-            {...yearOptions}
-          </select>
+      <div className=" border rounded border-amber-700 p-4">
+        <BandForm onSubmit={handleSubmit} setError={setError} />
+      </div>
 
-          <button type="submit">Submit</button>
-        </FormFieldsWrapper>
-      </form>
-      <ul>
-        {people.map((p, i) => (
-          <li key={i}>{p}</li>
-        ))}
-      </ul>
-
-      <div>{isTextLoading ? "Loading..." : textResponse}</div>
-      <div>{isImageLoading ? "Loading..." : responseImage}</div>
-      {!isTextLoading && Object.keys(responseStats).length > 0 && (
-        <ul className={"flex flex-col justify-center"}>
-          <li>
-            Words That Start with a Capital Letter:{" "}
-            {responseStats.capitalLetterWords ?? 0}
-          </li>
-          <li>
-            Words Followed by Numbers: {responseStats.wordsBeforeNumbers ?? 0}
-          </li>
-          <li>The Year is {responseStats.isYearOdd ? "Odd" : "Even"}</li>
-        </ul>
+      {(isTextLoading || textResponse) && (
+        <div className=" border rounded border-amber-700 p-4">
+          {isTextLoading ? "Loading..." : textResponse}
+        </div>
       )}
+      {(isImageLoading || imageComponent) && (
+        <div className=" border rounded border-amber-700 p-4">
+          {isImageLoading ? "Loading..." : imageComponent}
+        </div>
+      )}
+      {!isTextLoading && textResponse && (
+        <ResponseStats responseStats={responseStats} />
+      )}
+      <LastRequest />
     </main>
   );
 }

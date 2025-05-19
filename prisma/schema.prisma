@@ -11,3 +11,12 @@ model Person {
   id   Int    @id @default(autoincrement())
   name String
 }
+
+model RequestLog {
+  id        String   @id @default(cuid())
+  name      String
+  band      String
+  year      Int
+  content   String
+  createdAt DateTime @default(now())
+}

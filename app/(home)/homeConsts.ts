@@ -1,10 +1,12 @@
-import { ITextStats } from "@app/api/openai/text/textInterfaces";
+import { IFormData } from "@/types/requestTypes";
+import { ITextResponse } from "@/types/responseTypes";
+import { ILogData, ITextStats } from "@/types/common";
 
-export const fetchImage = async (formData: string) => {
+export const fetchImage = async (formData: IFormData): Promise<string> => {
   return fetch("/api/openai/image", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: formData,
+    body: JSON.stringify(formData),
   })
     .then(async (res) => {
       if (!res.ok) {
@@ -17,16 +19,11 @@ export const fetchImage = async (formData: string) => {
 };
 
 export const fetchText = async (
-  formData: string,
-): Promise<{
-  success: boolean;
-  text?: string;
-  stats?: ITextStats;
-  error?: string;
-}> => {
+  formData: IFormData,
+): Promise<ITextResponse> => {
   return fetch("/api/openai/text", {
     method: "POST",
-    body: formData,
+    body: JSON.stringify(formData),
     headers: { "Content-Type": "application/json" },
   }).then(async (res) => {
     if (!res.ok) {
@@ -36,6 +33,49 @@ export const fetchText = async (
 
     return res.json();
   });
+};
+
+export const updateText: (params: {
+  formData: IFormData;
+  setIsLoading: (isLoading: boolean) => void;
+  setError: (error: string) => void;
+  setData: (data: ITextResponse) => void;
+}) => void = ({ formData, setData, setError, setIsLoading }) => {
+  fetchText(formData)
+    .then((data) => {
+      if (data.success) {
+        setData(data);
+
+        setError("");
+      } else {
+        setError(data?.error ?? "");
+      }
+    })
+    .catch((err) => {
+      setError(err.response);
+    })
+    .finally(() => {
+      setIsLoading(false);
+    });
+};
+
+export const updateImage: (params: {
+  formData: IFormData;
+  setIsLoading: (isLoading: boolean) => void;
+  setError: (error: string) => void;
+  setData: (data: string) => void;
+}) => void = ({ formData, setData, setError, setIsLoading }) => {
+  fetchImage(formData)
+    .then((imageUrl) => {
+      setData(imageUrl);
+      setIsLoading(false);
+    })
+    .catch((error) => {
+      setError(error.message);
+    })
+    .finally(() => {
+      setIsLoading(false);
+    });
 };
 
 export const startYear = 1960;

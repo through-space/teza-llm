@@ -1,6 +1,6 @@
 import process from "node:process";
 import OpenAI from "openai";
-import { ITextStats } from "@app/api/openai/text/textInterfaces";
+import { ITextStats } from "@/types/common";
 
 export const getOpenAIBandText = async (
   name: string,

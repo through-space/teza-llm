@@ -30,7 +30,9 @@ services:
         - path: .
           target: /app
           action: sync
-    command: npm run dev   # ⏱️ Run in dev mode with file watching
+    command: sh -c "npx prisma generate && npx prisma db push && npm run dev"
+
+#    command: npm run dev   # ⏱️ Run in dev mode with file watching
 
 volumes:
   db-data:

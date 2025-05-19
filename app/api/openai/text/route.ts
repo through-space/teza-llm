@@ -3,6 +3,7 @@ import {
   getOpenAIBandText,
   getTextStats,
 } from "@app/api/openai/text/textConsts";
+import { PrismaClient } from "@prisma/client";
 
 export async function GET() {
   return NextResponse.json({});
@@ -10,6 +11,8 @@ export async function GET() {
 
 export async function POST(req: Request) {
   const { name, band, year } = await req.json();
+
+  const prisma = new PrismaClient();
 
   if (!name || !band || !year) {
     return NextResponse.json(
@@ -26,6 +29,12 @@ export async function POST(req: Request) {
           { status: 500 },
         );
       }
+
+      prisma.requestLog
+        .create({
+          data: { name, band, year: parseInt(year), content: response },
+        })
+        .catch((err) => console.error("💥 Prisma Save Error:", err));
 
       return NextResponse.json({
         success: true,

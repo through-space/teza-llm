@@ -16,7 +16,7 @@ RUN npm install
 COPY . .
 
 # Generate Prisma client (after schema + deps are in place)
-# RUN npx prisma generate
+#RUN npx prisma generate
 
 EXPOSE 3000
 
