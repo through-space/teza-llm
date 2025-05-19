@@ -45,12 +45,18 @@ ___
     OPENAI_API_KEY=<YOUR_OPENAI_API_KEY>
 ```
 
+- Test
+```shell
+  npm run test
+```
+
 - Build and Run
 ```shell
   docker compose build 
   docker compose up
 ```
 
+___
 
 ### ToDo:
 - [x] MVP
@@ -60,5 +66,5 @@ ___
 - [x] Show Last Form Data
 - [x] Generate Image
 - [x] Show error if no LLM Key provided
-- [ ] Tests
+- [x] Tests
 - [x] Show Response Stats

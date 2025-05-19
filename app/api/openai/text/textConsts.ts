@@ -1,6 +1,5 @@
 import process from "node:process";
 import OpenAI from "openai";
-import { ITextStats } from "@/types/common";
 
 export const getOpenAIBandText = async (
   name: string,
@@ -44,21 +43,4 @@ export const getOpenAIBandText = async (
       console.error(error);
       throw new Error(error.message);
     });
-};
-
-const getCapitalLetterWordCount = (text: string): number => {
-  const pattern = /\s?[A-Z]\w?/g;
-  return text.match(pattern)?.length ?? 0;
-};
-
-const getWordsBeforeNumbersCount = (text: string): number => {
-  const pattern = /[^\\.\s\d]+[ ,]\d/gi;
-  return text.match(pattern)?.length ?? 0;
-};
-
-export const getTextStats = (text: string): ITextStats => {
-  return {
-    capitalLetterWords: getCapitalLetterWordCount(text),
-    wordsBeforeNumbers: getWordsBeforeNumbersCount(text),
-  };
 };
