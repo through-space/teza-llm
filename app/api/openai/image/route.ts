@@ -20,6 +20,7 @@ const getOpenAIBandImage = async (band: string, year: number) => {
     The image should reflect the cultural and visual style of that era, including clothing, stage design, instruments, and atmosphere. 
     Capture the mood of their performances or public appearances during that time. 
     Use colors and lighting typical of ${year}'s visual aesthetic.
+    If the band didn't exist in ${year}
     `;
 
   return openai.images
