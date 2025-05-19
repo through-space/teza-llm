@@ -56,8 +56,8 @@ ___
 - [x] MVP
 - [x] Form Validation
 - [x] Add Loading State
-- [ ] Save Form Data
-- [ ] Show Last Form Data
+- [x] Save Form Data
+- [x] Show Last Form Data
 - [x] Generate Image
 - [x] Show error if no LLM Key provided
 - [ ] Tests
